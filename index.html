@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en" ng-app="phonecatApp">
+  <head>
+    <meta charset="utf-8">
+    <!-- <title>My HTML File</title> -->
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css" />
+    
+    <!-- Angular -->
+    <script src="node_modules/angular/angular.js"></script>
+    
+    <!-- Angular Bootstrap directives -->
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+    <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-csp.css"></script>
+    <script src="controller.js"></script>
+    <style type="text/css">
+      body {
+        margin-top: 55px;
+      }
+    </style>
+  </head>
+
+<body ng-controller="PhoneListController as $ctrl">
+
+  <!-- Modal template -->
+  <script type="text/ng-template" id="myModalContent.html" />
+      <div class="modal-header">
+          <h3 class="modal-title" id="modal-title">I'm a modal!</h3>
+      </div>
+      <div class="modal-body" id="modal-body">
+    
+        <form name="myForm" class="simple-form" novalidate>
+          First Name: <input type="text" name="firstName" ng-model="$ctrl.items.firstName" required/><br />
+          <div ng-show="myForm.firstName.$error.required">Error: </div>
+          Last Name: <input type="text" ng-model="$ctrl.items.lastName" /><br />
+          Middle Initial <input type="text" ng-model="$ctrl.items.middleInt" /><br />
+          E-mail: <input type="email" name="email" ng-model="$ctrl.items.email" required/><br />
+          <div ng-show="myForm.email.$error.required">Error: </div>
+          Phone Number: <input type="text" ng-model="$ctrl.items.phone" /><br />
+          Position Category: 
+              <select ng-model="$ctrl.items.position">
+                  <option value="indirect">Indirect</option>
+                  <option value="direct">Direct</option>
+                  <option value="programManager">Program Manager</option>
+                  <option value="director">Director</option>
+                  <option value="executive">Executive</option>
+              </select><br />
+          Date Hired: <input type="date" placeholder="yyyy-MM-dd" ng-model="$ctrl.items.dateHired" /><br />    
+        </form>    
+      </div>
+      <div class="modal-footer">
+          <button ng-show="$ctrl.items._id" class="btn btn-primary" type="button" ng-click="$ctrl.update($ctrl.items)">Update</button>
+          <button ng-show="!$ctrl.items._id" class="btn btn-primary" type="button" ng-click="$ctrl.create($ctrl.items)">Create</button>
+          <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+      </div>
+  </script>
+
+  <script type="text/ng-template" id="myModalContent2.html" />
+      <div class="modal-header">
+          <h3 class="modal-title" id="modal-title">CONFRIM DELETE</h3>
+      </div>
+      <div class="modal-body" id="modal-body">
+        Are you sure you wish to delete this record? 
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-primary" type="button" ng-click="$ctrl.delete($ctrl.items)">DELETE</button>
+          <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+      </div>
+  </script>
+
+  <!-- nav bar -->
+  <nav class="navbar/navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Project name</a>
+      </div>
+    </div>
+  </nav>
+
+<div class="container">
+
+
+ <form name="myForm">
+
+  <div class="panel panel-default">
+    <div class="panel-heading">SBS Front End Project</div>
+    <table class="table">
+
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Middle Initial</th>
+        <th>E-mail</th>
+        <th>Phone Number</th>
+        <th>Position Category</th>
+        <th>Date Hired</th>
+        <th>Address 1</th>
+      </tr>
+      <tr ng-repeat="record in records">
+        <td>{{record.firstName}}</td>
+        <td>{{record.lastName}}</td>
+        <td>{{record.middleInt}}</td>
+        <td>{{record.email}}</td>
+        <td>{{record.phone}}</td>
+        <td>{{record.position}}</td>
+        <td>{{record.dateHired | date: "MM-dd-yyyy"}}</td>
+        <td>{{record.addressOne}}</td>
+        <td>
+          <button type="button" class="btn btn-primary" ng-click="$ctrl.open('md', record)">
+            Edit
+          </button>
+          <button type="button" class="btn btn-warning" ng-click="$ctrl.delete('md', record._id)">
+            Delete
+          </button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button type="button" class="btn btn-primary" ng-click="$ctrl.open('md', {})">
+            Add
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+</body>
+
+</html>
