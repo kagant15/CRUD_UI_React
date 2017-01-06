@@ -11,6 +11,7 @@
   "author": "Thomas Kagan",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.15.3",
     "bootstrap": "^3.3.7",
     "express": "^4.14.0",
     "react": "^15.3.2",

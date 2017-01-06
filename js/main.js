@@ -1,4 +1,4 @@
-// var $ = require('jquery');
+var axios = require('axios');
 
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -9,6 +9,7 @@ var Table = require('react-bootstrap').Table;
 
 /* Initial app state */
 function getAppState(){
+	// -- default state
 	return {list : [{
 						firstName : 'Thomas', 
 						lastName : 'Kagan', 
@@ -39,6 +40,15 @@ var Main = React.createClass({
 
 	/* Setup socket listeners and corrisponding actions for each event */
 	componentDidMount: function() {
+		var me = this;
+		axios({
+		    method : "GET",
+		    url : "/contacts"
+		}).then(function success(response){
+		    me.setState({ list : response.data});
+		}, function error(response){
+			console.log("error", response);
+		});
 
 	},
 
