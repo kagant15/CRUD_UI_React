@@ -96,6 +96,8 @@ app.delete("/contacts/:id", function(req, res){
   });    
 });
 
+app.use(express.static('public'));
+
 // -- routes
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -108,6 +110,6 @@ app.get('/controller.js', function (req, res) {
 
 
 // -- start server
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(3001, function () {
+  console.log('Example app listening on port 3001!');
 });
