@@ -61,9 +61,9 @@ const Main = React.createClass({
 		this.setState({showModal : true, modelToEdit : record})
 	},
 
-	handleFirstNameChange(event) {
+	handleChange(event, property) {
 		const thing = this.state.modelToEdit;
-		thing.firstName = event.target.value;
+		thing[property]= event.target.value;
 		this.setState({modelToEdit: thing});
 	},
 
@@ -93,7 +93,7 @@ const Main = React.createClass({
 			// -- update the list with the update data and in the correct place in the list
 		    var newList = [];
 		    me.state.list.forEach((record)=>{
-		    	if(record._id === response.data._id){
+		    	if(record._id === response.data._id)
 		    		newList.push(response.data)
 		    	else
 		    		newList.push(record);
@@ -132,7 +132,7 @@ const Main = React.createClass({
 	render() {
 		return (
 			<div className='container'>
-			<UpdateModal show={this.state.showUpdateModal} handleFirstNameChange={this.handleFirstNameChange} record={this.state.modelToEdit} update={this.update} cancel={this.cancel} />
+			<UpdateModal show={this.state.showUpdateModal} handleChange={this.handleChange} record={this.state.modelToEdit} update={this.update} cancel={this.cancel} />
 			<div className="static-modal">
 			    <Modal show={this.state.showModal}>
 			      <Modal.Header>

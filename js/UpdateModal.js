@@ -42,27 +42,27 @@ const UpdateModal = React.createClass({
 					<form>
 						<FormGroup controlId="formControlsFirstName">
 					      <ControlLabel>First Name</ControlLabel>
-					      <FormControl type="text" value={this.props.record.firstName} onChange={this.props.handleFirstNameChange} />
+					      <FormControl type="text" value={this.props.record.firstName} onChange={(event)=>{this.props.handleChange(event, "firstName")}} />
 					    </FormGroup>
 						<FormGroup controlId="formControlsLastName">
 					      <ControlLabel>Last Name</ControlLabel>
-					      <FormControl type="text"  />
+					      <FormControl type="text" value={this.props.record.lastName} onChange={(event)=>{this.props.handleChange(event, "lastName")}} />
 					    </FormGroup>
 					    <FormGroup controlId="formControlsMiddleInitial">
 					      <ControlLabel>Middle Initial</ControlLabel>
-					      <FormControl type="text"  />
+					      <FormControl type="text" value={this.props.record.middleInt} onChange={(event)=>{this.props.handleChange(event, "middleInt")}}/>
 					    </FormGroup>
 					    <FormGroup controlId="formControlsEmail">
 					      <ControlLabel>E-mail</ControlLabel>
-					      <FormControl type="email"  />
+					      <FormControl type="email" value={this.props.record.email} onChange={(event)=>{this.props.handleChange(event, "email")}} />
 					    </FormGroup>
 					    <FormGroup controlId="formControlsPhone">
 					      <ControlLabel>Phone Number</ControlLabel>
-					      <FormControl type="text"  />
+					      <FormControl type="text"  value={this.props.record.phone} onChange={(event)=>{this.props.handleChange(event, "phone")}} />
 					    </FormGroup>
 					    <FormGroup controlId="formControlsSelect">
 					      <ControlLabel>Select</ControlLabel>
-					      <FormControl componentClass="select" >
+					      <FormControl componentClass="select" value={this.props.record.position} onChange={(event)=>{this.props.handleChange(event, "position")}} >
 					      	<option value="select">select</option>
 					       	<option value="indirect">Indirect</option>
 			                <option value="direct">Direct</option>
@@ -89,7 +89,7 @@ const UpdateModal = React.createClass({
 });
 
 UpdateModal.propTypes = {
-	handleFirstNameChange: React.PropTypes.func
+	handleChange: React.PropTypes.func
 }
 
 module.exports = UpdateModal;
