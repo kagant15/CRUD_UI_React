@@ -10,8 +10,6 @@ var Main = require('./js/main');
 
 // const store = createStore(reducer)
 
-// var Main = require('./js/main');
-
 ReactDOM.render(
 	<Main />,
   	document.getElementById('app')

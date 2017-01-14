@@ -6,6 +6,8 @@ var express = require('express');
 var bodyParser = require("body-parser");
 var app = express();
 
+var objectAssign = require('object-assign');
+
 var records = []
 var url = 'mongodb://localhost:27017/company';
 
@@ -49,11 +51,9 @@ app.get("/contacts", function(req, res){
 app.put("/contacts/:id", function(req, res){
   MongoClient.connect(url, function(err, db) {
     var newContact = req.body;
-    db.collection('employees').update(
-      { 
-        _id : new mongo.ObjectID(req.params.id) 
-      },
-      {
+    
+    var selector = {_id : new mongo.ObjectID(req.params.id)};
+    var updateObject =  {
         "firstName" : newContact.firstName,
         "lastName" : newContact.lastName,
         "middleInt" : newContact.middleInt,
@@ -61,18 +61,21 @@ app.put("/contacts/:id", function(req, res){
         "phone" : newContact.phone,
         "position" : newContact.position,
         "dateHired" : newContact.dateHired
-      },
-      {
-        "upsert" : false
-      }, 
-      function(err, results) {
+      }
+    var options = {"upsert" : false}
+
+    db.collection('employees').update(
+      selector,
+      updateObject,
+      options, 
+      function(err, results, ops) {
         if(err){
           console.log("error");
         }
         else{
-          res.sendStatus(200)
-          // res.json(message : "this is a message")
-          // res.send()
+          var myDataPackage = objectAssign(updateObject, selector)
+          res.status(200);
+          res.send(myDataPackage);
         }
         db.close() 
       });

@@ -4,13 +4,27 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 
 var Table = require('react-bootstrap').Table;
-
-
+var Modal = require('react-bootstrap').Modal;
+var Button = require('react-bootstrap').Button;
+var UpdateModal = require('./UpdateModal');
 
 /* Initial app state */
 function getAppState(){
 	// -- default state
-	return {list : [{
+	return {
+			showModal : false,
+			showUpdateModal : false, 
+			modelToEdit : {
+						firstName : '', 
+						lastName : '', 
+						middleInt : '',
+						email : '',
+						phone : '',
+						position : '',
+						dateHired : '',
+						addressOne : ""
+					},
+			list : [{
 						firstName : 'Thomas', 
 						lastName : 'Kagan', 
 						middleInt : 'M',
@@ -32,10 +46,64 @@ function getAppState(){
 					}] };
 }
 
-var Main = React.createClass({
 
-	getInitialState: function() {
+const Main = React.createClass({
+
+	getInitialState() {
 		return getAppState();
+	},
+
+	close(){
+		this.setState({showModal : false})
+	},
+
+	open(record){
+		this.setState({showModal : true, modelToEdit : record})
+	},
+
+	handleFirstNameChange(event) {
+		const thing = this.state.modelToEdit;
+		thing.firstName = event.target.value;
+		this.setState({modelToEdit: thing});
+	},
+
+	delete(){
+		var me = this;
+		axios({
+          method : "DELETE",
+          url : "/contacts/"+me.state.modelToEdit._id,
+          data : me.state.modelToEdit._id
+        }).then(function success(response){
+          location.reload()
+        }, function error(response){
+          console.log("error of delete");
+        });
+	},
+
+	/* Update the record */
+	update(){
+		const record = this.state.modelToEdit;
+		var me = this;
+		axios({
+          method : "PUT",
+          url : "/contacts/"+me.state.modelToEdit._id,
+          data : record
+        }).then(function success(response){
+
+			// -- update the list with the update data and in the correct place in the list
+		    var newList = [];
+		    me.state.list.forEach((record)=>{
+		    	if(record._id === response.data._id){
+		    		newList.push(response.data)
+		    	else
+		    		newList.push(record);
+		    })
+
+        	me.setState({showUpdateModal : false, list : newList});
+
+        }, function error(response){
+          console.log("error on update");
+        });
 	},
 
 	/* Setup socket listeners and corrisponding actions for each event */
@@ -52,9 +120,36 @@ var Main = React.createClass({
 
 	},
 
-	render: function() {
+	cancel(){
+		this.setState({showUpdateModal : false})
+	},
+
+	onEditButtonClick(record){
+		const thing = Object.assign({}, record);
+		this.setState({showUpdateModal : true, modelToEdit : thing})
+	},
+
+	render() {
 		return (
 			<div className='container'>
+			<UpdateModal show={this.state.showUpdateModal} handleFirstNameChange={this.handleFirstNameChange} record={this.state.modelToEdit} update={this.update} cancel={this.cancel} />
+			<div className="static-modal">
+			    <Modal show={this.state.showModal}>
+			      <Modal.Header>
+			        <Modal.Title>Confrim Delete</Modal.Title>
+			      </Modal.Header>
+
+			      <Modal.Body>
+			        Are you sure you wish to delete this record?
+			      </Modal.Body>
+
+			      <Modal.Footer>
+			        <Button bsStyle='warning' onClick={this.delete}>Delete</Button>
+			        <Button bsStyle="primary" onClick={this.close}>Cancel</Button>
+			      </Modal.Footer>
+
+			    </Modal>
+			  </div>
 				<div className='panel panel-default'>
 					<div className='panel-heading'>SBS Front End Project</div>
 					<Table>
@@ -83,12 +178,10 @@ var Main = React.createClass({
 									<td>{record.dateHired}</td>
 									<td>{record.addressOne}</td>
 									<td>
-							          <button type="button" className="btn btn-primary">
+							          <Button bsStyle="primary" onClick={()=>{this.onEditButtonClick(record)}} >
 							            Edit
-							          </button>
-							          <button type="button" className="btn btn-warning">
-							            Delete
-							          </button>
+							          </Button>
+							          <Button bsStyle='warning' onClick={()=>{this.open(record)}}>Delete</Button>
 							        </td>
 								</tr>
 							)
