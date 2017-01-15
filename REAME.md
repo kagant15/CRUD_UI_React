@@ -2,15 +2,10 @@ start mongo with mongod
 node app.js
 
 TODO : 
-	GET A HOT RELOADER TOOL
-	GET LINTER IF APPLICABLE
-	SETUP TDD
-	MARKUP SCRIPT FOR README
-
-	Delete record
-	Update record with modal
-	Add Record with modal
-
+	Get a hot reloader tool
+	Look into a linting tool
+	integrate tdd
+	use markup script for readme
 
 NOTES : 
 	When using bootstrap in react I needed to include tbody otherwise bootstrap style would not be applied.  Did not have this problem in angular
