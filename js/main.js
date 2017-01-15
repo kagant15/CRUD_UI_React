@@ -1,138 +1,169 @@
+
+/* Ajax */
 var axios = require('axios');
 
+/* React */
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+/* React bootstrap */
 var Table = require('react-bootstrap').Table;
 var Modal = require('react-bootstrap').Modal;
 var Button = require('react-bootstrap').Button;
+
+/* Immutable.js */
+var Immutable = require('immutable');
+
+/* Custom component */
 var UpdateModal = require('./UpdateModal');
 
 /* Initial app state */
 function getAppState(){
 	// -- default state
-	return {
+	var startingState = {
 			showModal : false,
 			showUpdateModal : false, 
-			modelToEdit : {
-						firstName : '', 
-						lastName : '', 
-						middleInt : '',
-						email : '',
-						phone : '',
-						position : '',
-						dateHired : '',
-						addressOne : ""
-					},
-			list : [{
-						firstName : 'Thomas', 
-						lastName : 'Kagan', 
-						middleInt : 'M',
-						email : 'tomkagan26@gmail.com',
-						phone : '555-964-5555',
-						position : 'Developer',
-						dateHired : '12-15-1989',
-						addressOne : "3901 Lyndhurst Drive"
-					},
-					{
-						firstName : 'Samantha', 
-						lastName : 'Shiley', 
-						middleInt : 'M',
-						email : 'sshiley@gmail.com',
-						phone : '555-262-5555',
-						position : 'Wife',
-						dateHired : '1-24-1992',
-						addressOne : "3901 Lyndhurst Drive"
-					}] };
+			modelToEdit : Immutable.Map({}),
+			list :  Immutable.List([])
+		};
+
+	return startingState;
 }
 
-
+/* The main component for the application */
 const Main = React.createClass({
 
 	getInitialState() {
 		return getAppState();
 	},
 
-	close(){
-		this.setState({showModal : false})
-	},
-
-	open(record){
-		this.setState({showModal : true, modelToEdit : record})
-	},
-
-	handleChange(event, property) {
-		const thing = this.state.modelToEdit;
-		thing[property]= event.target.value;
-		this.setState({modelToEdit: thing});
-	},
-
-	delete(){
-		var me = this;
-		axios({
-          method : "DELETE",
-          url : "/contacts/"+me.state.modelToEdit._id,
-          data : me.state.modelToEdit._id
-        }).then(function success(response){
-          location.reload()
-        }, function error(response){
-          console.log("error of delete");
-        });
-	},
-
-	/* Update the record */
-	update(){
-		const record = this.state.modelToEdit;
-		var me = this;
-		axios({
-          method : "PUT",
-          url : "/contacts/"+me.state.modelToEdit._id,
-          data : record
-        }).then(function success(response){
-
-			// -- update the list with the update data and in the correct place in the list
-		    var newList = [];
-		    me.state.list.forEach((record)=>{
-		    	if(record._id === response.data._id)
-		    		newList.push(response.data)
-		    	else
-		    		newList.push(record);
-		    })
-
-        	me.setState({showUpdateModal : false, list : newList});
-
-        }, function error(response){
-          console.log("error on update");
-        });
-	},
-
-	/* Setup socket listeners and corrisponding actions for each event */
-	componentDidMount: function() {
+	/* Component Setup */
+	componentDidMount(){
 		var me = this;
 		axios({
 		    method : "GET",
 		    url : "/contacts"
 		}).then(function success(response){
-		    me.setState({ list : response.data});
+			// -- Load the initial data into the view
+		    me.setState({ list : Immutable.fromJS(response.data)});
 		}, function error(response){
 			console.log("error", response);
 		});
 
 	},
 
-	cancel(){
+	/* Close the delete modal */
+	closeDeleteModal(){
+		this.setState({showModal : false})
+	},
+
+	/* Open the modal and set the record that should be edited */
+	open(record){
+		this.setState({showModal : true, modelToEdit : record})
+	},
+
+	/* Callback to handle the changes of an input in the form */
+	handleChange(event, property) {
+		const thing = this.state.modelToEdit.set(property, event.target.value);
+		this.setState({modelToEdit: thing});
+	},
+
+	/* Close the modal */
+	closeUpdateModal(){
 		this.setState({showUpdateModal : false})
 	},
 
+	/* Edit record */
 	onEditButtonClick(record){
-		const thing = Object.assign({}, record);
-		this.setState({showUpdateModal : true, modelToEdit : thing})
+		this.setState({showUpdateModal : true, modelToEdit : record})
+	},
+
+	/* Delete a record from the database */
+	delete(){
+		const me = this;
+		const modelToEdit = this.state.modelToEdit;
+		axios({
+          method : "DELETE",
+          url : "/contacts/"+modelToEdit.get('_id'),
+          data : modelToEdit.get('_id')
+        }).then(function success(response){
+
+        	// -- update the view with the result from the delete
+        	// -- delete the item from the list by index
+        	const list = me.state.list;
+			me.setState({
+				showModal : false, 
+				list : list.delete(
+						list.findIndex(
+				 			x=>{return x.get('_id')=== response.data._id}
+				 		))
+				});
+        }, function error(response){
+          console.log("error of delete");
+        });
+	},
+
+	/* Update the record in the database */
+	update(){
+		const me = this;
+		const modelToEdit = this.state.modelToEdit;
+		axios({
+          method : "PUT",
+          url : "/contacts/"+modelToEdit.get('_id'),
+          data : modelToEdit
+        }).then(function success(response){
+
+        	// -- update the list in the view based on the result of the update
+        	// -- get the index then use it to update the view.
+        	const list = me.state.list;
+        	const newList = list.update(
+								list.findIndex(
+						 			x=>{return x.get("_id") === response.data._id}
+						 		), record =>{ return Immutable.fromJS(response.data) });
+        	
+			me.setState({
+				showUpdateModal : false, 
+				list : newList
+			});
+
+        }, function error(response){
+          console.log("error on update");
+        });
+	},
+
+	create(){
+		const me = this;
+		const modelToEdit = this.state.modelToEdit;
+		axios({
+          method : "POST",
+          url : "/contacts",
+          data : modelToEdit
+        }).then(function success(response){
+        	console.debug("response", response);
+        	const list = me.state.list;
+        	const newList = list.push(Immutable.fromJS(response.data));
+        	
+			me.setState({
+				showUpdateModal : false, 
+				list : newList
+			});
+
+        }, function error(response){
+          console.log("error on update");
+        });
 	},
 
 	render() {
 		return (
 			<div className='container'>
-			<UpdateModal show={this.state.showUpdateModal} handleChange={this.handleChange} record={this.state.modelToEdit} update={this.update} cancel={this.cancel} />
+
+			<UpdateModal show={this.state.showUpdateModal} 
+						 handleChange={this.handleChange} 
+						 record={this.state.modelToEdit} 
+						 update={this.update}
+						 create={this.create}
+						 cancel={this.closeUpdateModal} />
+
 			<div className="static-modal">
 			    <Modal show={this.state.showModal}>
 			      <Modal.Header>
@@ -145,11 +176,11 @@ const Main = React.createClass({
 
 			      <Modal.Footer>
 			        <Button bsStyle='warning' onClick={this.delete}>Delete</Button>
-			        <Button bsStyle="primary" onClick={this.close}>Cancel</Button>
+			        <Button bsStyle="primary" onClick={this.closeDeleteModal}>Cancel</Button>
 			      </Modal.Footer>
 
 			    </Modal>
-			  </div>
+			</div>
 				<div className='panel panel-default'>
 					<div className='panel-heading'>SBS Front End Project</div>
 					<Table>
@@ -166,29 +197,30 @@ const Main = React.createClass({
 						    </tr>
 					    </thead>
 					    <tbody>
-						{this.state.list.map((record, i)=>{
+						{this.state.list.map((record)=>{
 							return (
-								<tr key={i}>
-									<td>{record.firstName}</td>
-									<td>{record.lastName}</td>
-									<td>{record.middleInt}</td>
-									<td>{record.email}</td>
-									<td>{record.phone}</td>
-									<td>{record.position}</td>
-									<td>{record.dateHired}</td>
-									<td>{record.addressOne}</td>
+								<tr >
+									<td>{record.get('firstName')}</td>
+									<td>{record.get('lastName')}</td>
+									<td>{record.get('middleInt')}</td>
+									<td>{record.get('email')}</td>
+									<td>{record.get('phone')}</td>
+									<td>{record.get('position')}</td>
+									<td>{record.get('dateHired')}</td>
+									<td>{record.get('addressOne')}</td>
 									<td>
 							          <Button bsStyle="primary" onClick={()=>{this.onEditButtonClick(record)}} >
 							            Edit
 							          </Button>
 							          <Button bsStyle='warning' onClick={()=>{this.open(record)}}>Delete</Button>
 							        </td>
+
 								</tr>
 							)
 						})}
 						<tr>
 					    	<td>
-						        <button type="button" className="btn btn-primary">
+						        <button type="button" className="btn btn-primary" onClick={()=>{this.onEditButtonClick(Immutable.Map({}))}} >
 						        	Add
 						        </button>
 					        </td>
@@ -198,12 +230,6 @@ const Main = React.createClass({
 				</div>
 			</div>
 		);
-	},
-
-	/* Event to set that latest state of the application */
-	_onChange : function(){
-		
-	},
-
+	}
 });
 module.exports = Main;
