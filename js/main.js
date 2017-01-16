@@ -22,6 +22,7 @@ function getAppState(){
 	// -- default state
 	var startingState = {
 			showModal : false,
+			isUpdateModal : false,
 			showUpdateModal : false, 
 			modelToEdit : Immutable.Map({}),
 			list :  Immutable.List([])
@@ -29,6 +30,9 @@ function getAppState(){
 
 	return startingState;
 }
+
+/* returns YYYY-MM-DD format for today */
+const today = ()=> new Date().toISOString().split('T')[0];
 
 /* The main component for the application */
 const Main = React.createClass({
@@ -68,14 +72,20 @@ const Main = React.createClass({
 		this.setState({modelToEdit: thing});
 	},
 
+	/* Callback to handle the date change*/
+	handleDateChange(date) {
+		const thing = this.state.modelToEdit.set("dateHired", date.split('T')[0]);
+		this.setState({modelToEdit: thing});
+	},
+
 	/* Close the modal */
 	closeUpdateModal(){
 		this.setState({showUpdateModal : false})
 	},
 
 	/* Edit record */
-	onEditButtonClick(record){
-		this.setState({showUpdateModal : true, modelToEdit : record})
+	onEditButtonClick(record, isUpdateModal){
+		this.setState({showUpdateModal : true, modelToEdit : record, isUpdateModal: isUpdateModal})
 	},
 
 	/* Delete a record from the database */
@@ -131,6 +141,7 @@ const Main = React.createClass({
         });
 	},
 
+	/* Create a new record */
 	create(){
 		const me = this;
 		const modelToEdit = this.state.modelToEdit;
@@ -139,7 +150,6 @@ const Main = React.createClass({
           url : "/contacts",
           data : modelToEdit
         }).then(function success(response){
-        	console.debug("response", response);
         	const list = me.state.list;
         	const newList = list.push(Immutable.fromJS(response.data));
         	
@@ -162,6 +172,8 @@ const Main = React.createClass({
 						 record={this.state.modelToEdit} 
 						 update={this.update}
 						 create={this.create}
+						 handleDateChange={this.handleDateChange}
+						 isUpdateModal={this.state.isUpdateModal}
 						 cancel={this.closeUpdateModal} />
 
 			<div className="static-modal">
@@ -199,7 +211,7 @@ const Main = React.createClass({
 					    <tbody>
 						{this.state.list.map((record)=>{
 							return (
-								<tr >
+								<tr key={record.get('_id')}>
 									<td>{record.get('firstName')}</td>
 									<td>{record.get('lastName')}</td>
 									<td>{record.get('middleInt')}</td>
@@ -209,21 +221,28 @@ const Main = React.createClass({
 									<td>{record.get('dateHired')}</td>
 									<td>{record.get('addressOne')}</td>
 									<td>
-							          <Button bsStyle="primary" onClick={()=>{this.onEditButtonClick(record)}} >
-							            Edit
+							          <Button bsStyle="primary" onClick={()=>{this.onEditButtonClick(record, true)}} >
+							            Update
 							          </Button>
 							          <Button bsStyle='warning' onClick={()=>{this.open(record)}}>Delete</Button>
 							        </td>
-
 								</tr>
 							)
 						})}
 						<tr>
 					    	<td>
-						        <button type="button" className="btn btn-primary" onClick={()=>{this.onEditButtonClick(Immutable.Map({}))}} >
+						        <button type="button" className="btn btn-primary" onClick={()=>{this.onEditButtonClick(Immutable.Map({ dateHired : today()}), false)}} >
 						        	Add
 						        </button>
 					        </td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
+					        <td></td>
 					     </tr>
 						</tbody>
 					</Table>
