@@ -194,7 +194,7 @@ const Main = React.createClass({
 			    </Modal>
 			</div>
 				<div className='panel panel-default'>
-					<div className='panel-heading'>SBS Front End Project</div>
+					<div className='panel-heading'>Employees</div>
 					<Table>
 						<thead>
 							<tr>
