@@ -6,12 +6,16 @@
   "scripts": {
     "build": "browserify -t [ babelify --presets [ react es2015 ] ] AppReact.js -d -o public/bundle.js",
     "prestart": "npm run build",
-    "start": "node app.js"
+    "start": "node app.js",
+    "livereload": "node_modules/.bin/watchify AppReact.js -t [ babelify --presets [ react es2015 ] ] -p livereactload -o public/bundle.js"
   },
   "author": "Thomas Kagan",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.15.3",
+    "babel-preset-es2015": "^6.22.0",
+    "babel-preset-react": "^6.22.0",
+    "babelify": "^7.3.0",
     "bootstrap": "^3.3.7",
     "express": "^4.14.0",
     "immutable": "^3.8.1",
@@ -26,8 +30,12 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "babel-plugin-react-transform": "^2.0.2",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
-    "babelify": "^7.2.0"
+    "babelify": "^7.2.0",
+    "livereactload": "^3.2.0",
+    "react-proxy": "^1.1.8",
+    "watchify": "^3.9.0"
   }
 }

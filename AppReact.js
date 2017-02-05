@@ -6,7 +6,7 @@ import reducer from './reducers'
 var React = require('react');
 var ReactDOM = require('react-dom');
 
-var Main = require('./js/main');
+var Main = require('./components/main');
 
 // const store = createStore(reducer)
 

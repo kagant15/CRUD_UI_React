@@ -1,8 +1,9 @@
 start mongo with mongod
 node app.js
 
+hot reload with npm run livereload
+
 TODO : 
-	Get a hot reloader tool
 	Look into a linting tool (example : ESLint)
 	integrate tdd
 	use markup script for readme
