@@ -14,7 +14,7 @@ const initialState = {
 }
 
 function appReducer(state = initialState, action){
-	console.debug("action", action);
+	// console.debug("action", action);
 	switch (action.type){
 		case SET_SHOW_MODAL:
 			return Object.assign({}, state, action.data);
